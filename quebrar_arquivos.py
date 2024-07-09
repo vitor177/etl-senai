@@ -5,7 +5,7 @@ import csv
 from datetime import datetime
 
 path = "C:/Users/joaomendonca/Documents/senai-extract/data/ILHA SOLTEIRA-SP_GHI_seg_ILHA_SP.dat"
-input_file = "ILHA SOLTEIRA-SP_GHI_seg_ILHA_SP.dat"
+input_file = path.split("/")[-1]
 df_complete = pd.read_csv(path, delimiter=',', header=None, skiprows=4)
 
 df = df_complete.iloc[4:].reset_index(drop=True)
@@ -15,8 +15,7 @@ df = df_complete.iloc[4:].reset_index(drop=True)
 
 df_original = df.copy()
 df_original.shape
-
-print(path.split())
+# %%
 
 # %%
 df_complete.head()
