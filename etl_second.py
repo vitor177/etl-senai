@@ -15,3 +15,28 @@ df_original.shape
 # Identificando linhas duplicadas
 duplicated_rows = df[df.duplicated()]
 duplicated_rows
+
+# %%
+df.drop_duplicates(inplace=True)
+df
+# %%
+# %%
+df.isna().sum()
+# %%
+df["TIMESTAMP"] = pd.to_datetime(df["TIMESTAMP"])
+df.head()
+# %%
+# Gerar série temporária
+start_timestamp = df["TIMESTAMP"].min()
+end_timestamp = df["TIMESTAMP"].max()
+all_timestamps = pd.date_range(start=start_timestamp, end=end_timestamp, freq='S')
+# %%
+missing_timestamps = all_timestamps.difference(df['TIMESTAMP'])
+missing_timestamps
+
+# %%
+complete_df = pd.DataFrame(all_timestamps, columns=["TIMESTAMP"])
+merged_df = pd.merge(complete_df, df, on='TIMESTAMP', how='left')
+# %%
+merged_df.shape
+# %%

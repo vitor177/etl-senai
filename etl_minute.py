@@ -22,3 +22,20 @@ df
 df.isna().sum()
 
 # %%
+df.head()
+df["TIMESTAMP"] = pd.to_datetime(df["TIMESTAMP"])
+
+# Gerar série temporária
+start_timestamp = df["TIMESTAMP"].min()
+end_timestamp = df["TIMESTAMP"].max()
+all_timestamps = pd.date_range(start=start_timestamp, end=end_timestamp, freq='T')
+
+# %%
+# Verificar tempos faltantes
+missing_timestamps = all_timestamps.difference(df['TIMESTAMP'])
+missing_timestamps
+
+# %%
+complete_df = pd.DataFrame(all_timestamps, columns=["TIMESTAMP"])
+merged_df = pd.merge(complete_df, df, on='TIMESTAMP', how='left')
+# %%
