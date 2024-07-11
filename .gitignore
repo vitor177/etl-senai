@@ -1,2 +1,5 @@
 data/
 raw/
+etl/
+log/
+output_files/

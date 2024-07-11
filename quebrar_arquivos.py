@@ -5,12 +5,14 @@ import csv
 from datetime import datetime
 
 # Essa função vai receber um arquivo .dat completo e quebrar em arquivos diários
-def quebrar_arquivos(filename, time):
+def quebrar_arquivos(path, time):
 
-    path = "C:/Users/joaomendonca/Documents/senai-extract/data/ILHA SOLTEIRA-SP_GHI_seg_ILHA_SP.dat"
-    filename  = path
+    #path = "C:/Users/joaomendonca/Documents/senai-extract/data/ILHA SOLTEIRA-SP_GHI_seg_ILHA_SP.dat"
+
+    #path = "raw/estacoes/min"
+
     input_file = path.split("/")[-1]
-    df_complete = pd.read_csv(filename, delimiter=',', header=None, skiprows=4)
+    df_complete = pd.read_csv(path, delimiter=',', header=None, skiprows=4)
 
     df = df_complete.iloc[4:].reset_index(drop=True)
     #df.columns = ["TOA5","ILHA SOLTEIRA-SP","CR1000X","23875","CR1000X.Std.04.02","CPU:ILHA SOLTEIRA_SP_Rev01.CR1X","18206","GHI_seg_ILHA_SP"]
@@ -19,9 +21,6 @@ def quebrar_arquivos(filename, time):
 
     df_original = df.copy()
     # %%
-
-    # %%
-    df_complete.head()
     # %%
     header_lines = []
     data_start_line = None
@@ -65,3 +64,7 @@ def quebrar_arquivos(filename, time):
                     for header_line in header_lines:
                         file.write(header_line + "\n")
                     file.write(",".join(row) + "\n")  # Escreve os dados da medição
+
+
+                output_dir = f"output_files/{input_file}"
+                os.makedirs(output_dir, exist_ok=True)

@@ -77,7 +77,9 @@ with open("C:/Users/joaomendonca/Documents/senai-extract/data/PIRASSUNUNGA-SP_Ta
             current_date_data.append(','.join(row))
 
             print(f"ROW 0 TA RECEBENDO {timestamp}")
-            print(f"CURRENT_DATE_DATA É {current_date_data}")
+            print(f"CURRENT_DATE_DATA É {len(current_date_data)}")
+
+            break
 
 
                 
