@@ -39,9 +39,11 @@ def etl_minute(path):
     # %%
     complete_df = pd.DataFrame(all_timestamps, columns=["TIMESTAMP"])
     merged_df = pd.merge(complete_df, df, on='TIMESTAMP', how='left')
+
+
     # %%
 
-    return merged_df, len(duplicated_rows), len(missing_timestamps)
+    return merged_df, len(duplicated_rows), len(missing_timestamps), len(merged_df)
 
 
 # %%

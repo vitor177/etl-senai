@@ -41,7 +41,7 @@ def processar_arquivo(file_path):
 
 if __name__ == "__main__":
 
-    #copia()
+    copia()
 
     seg_directory = Path("./raw/estacoes/min")
     files_to_process = list(seg_directory.glob("*"))
@@ -66,8 +66,8 @@ if __name__ == "__main__":
             station_name = pasta.name
             station_log_data = {}
             for arquivo in pasta.glob("*.dat"):
-                transformed_df, qt_repetidos, qt_faltantes = etl_minute(arquivo)
-                station_log_data[arquivo.stem] = {"Quantidade de repetidos": qt_repetidos, "Quantidade de faltantes": qt_faltantes}
+                transformed_df, qt_repetidos, qt_faltantes, qt_amostras = etl_minute(arquivo)
+                station_log_data[arquivo.stem] = {"Quantidade de repetidos": qt_repetidos, "Quantidade de faltantes": qt_faltantes, "Quantidade de amostras": qt_amostras}
                 relative_path = arquivo.relative_to(input_dir)
                 output_path = output_dir / relative_path
                 output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -86,4 +86,5 @@ if __name__ == "__main__":
                 f.write(f"  Arquivo: {file_name}\n")
                 f.write(f"    Quantidade de repetidos: {values['Quantidade de repetidos']}\n")
                 f.write(f"    Quantidade de faltantes: {values['Quantidade de faltantes']}\n")
+                f.write(f"    Quantidade de amostras: {values['Quantidade de amostras']}\n")
             f.write("\n")
