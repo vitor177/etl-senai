@@ -5,3 +5,6 @@ log/
 output_files/
 gold/
 __pycache__/
+*.pyc
+bronze/
+silver/

@@ -6,8 +6,8 @@ def copia():
     network_drive = "Z:/"
     #network_path = "C:\Users\joaomendonca\Documents\senai-extract\copy_files.py"
 
-    seg_directory = "./raw/estacoes/seg"
-    min_directory = "./raw/estacoes/min"
+    seg_directory = "./raw/seg"
+    min_directory = "./raw/min"
 
 
     os.makedirs(seg_directory, exist_ok=True)
@@ -17,7 +17,6 @@ def copia():
     estacoes_minuto = []
 
     for filename in os.listdir(network_drive):
-        
         if filename.endswith(".dat"):
             print(f"Copiando o arquivo {filename}")
             full_path = os.path.join(network_drive, filename)

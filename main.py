@@ -17,7 +17,7 @@ def processar_arquivo_minuto(file_path):
     data_start_line = 4
     
     # Criação do diretório de saída
-    output_base_dir = Path("output_files/min")
+    output_base_dir = Path("bronze/min")
     output_dir = output_base_dir / input_file
     output_dir.mkdir(parents=True, exist_ok=True)
     
@@ -44,12 +44,12 @@ def processar_arquivo_minuto(file_path):
 if __name__ == "__main__":
 
     # COPIA DOS ARQUIVOS PARA A PASTA RAW
-    #copia() 
+    copia() 
 
-    min_directory = Path("./raw/estacoes/min")
+    min_directory = Path("./raw/min")
     files_to_process_min = list(min_directory.glob("*"))
     
-    seg_directory = Path("./raw/estacoes/seg")
+    seg_directory = Path("./raw/seg")
     files_to_process_seg = list(seg_directory.glob("*"))
 
     # Paralelização com multiprocessing.Pool
@@ -57,11 +57,11 @@ if __name__ == "__main__":
     print(f"Utilizando {num_processes} processos.")
     
     # ESCREVE EM OUTPUT FILES OS DADOS DIVIDIDOS POR MINUTO
-    # with Pool(num_processes) as pool:
-    #     pool.map(processar_arquivo_minuto, files_to_process_min)
+    with Pool(num_processes) as pool:
+        pool.map(processar_arquivo_minuto, files_to_process_min)
 
-    input_dir = Path("output_files/min")
-    output_dir = Path("etl/min")
+    input_dir = Path("bronze/min")
+    output_dir = Path("silver/min")
 
     log_dir = Path("log/min")
     log_data = {}
@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
 
     # MERGE DOS ARQUIVOS
-    input_dir = Path("etl/min")
+    input_dir = Path("silver/min")
 
     for pasta in input_dir.glob("*"):
         novo_arquivo = pasta.stem
