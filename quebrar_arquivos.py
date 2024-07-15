@@ -36,7 +36,7 @@ def quebrar_arquivos(path, time):
     # %%
 
     # Create a directory to store the output files
-    output_dir = f"output_files/{input_file}"
+    output_dir = f"bronze/{input_file}"
     os.makedirs(output_dir, exist_ok=True)
     # %%
     for index, row in df_complete.iterrows():
@@ -66,5 +66,5 @@ def quebrar_arquivos(path, time):
                     file.write(",".join(row) + "\n")  # Escreve os dados da medição
 
 
-                output_dir = f"output_files/{input_file}"
+                output_dir = f"bronze/{input_file}"
                 os.makedirs(output_dir, exist_ok=True)

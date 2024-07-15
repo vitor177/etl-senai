@@ -32,7 +32,7 @@ header_lines
 data_start_line
 # %%
 # Create a directory to store the output files
-output_dir = "output_files"
+output_dir = "bronze"
 os.makedirs(output_dir, exist_ok=True)
 
 # Read the data and separate by date
