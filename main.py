@@ -4,8 +4,10 @@ from pathlib import Path
 from multiprocessing import Pool, cpu_count
 from copy_files import copia
 from etl import etl_minute
+from merge_dat_files import merge_dat_files
 
-def processar_arquivo(file_path):
+
+def processar_arquivo_minuto(file_path):
     input_file = file_path.name
     print(f"Processando {input_file}")
     
@@ -41,17 +43,22 @@ def processar_arquivo(file_path):
 
 if __name__ == "__main__":
 
-    copia()
+    # COPIA DOS ARQUIVOS PARA A PASTA RAW
+    #copia() 
 
-    seg_directory = Path("./raw/estacoes/min")
-    files_to_process = list(seg_directory.glob("*"))
+    min_directory = Path("./raw/estacoes/min")
+    files_to_process_min = list(min_directory.glob("*"))
     
+    seg_directory = Path("./raw/estacoes/seg")
+    files_to_process_seg = list(seg_directory.glob("*"))
+
     # Paralelização com multiprocessing.Pool
     num_processes = cpu_count()  # Número de núcleos da CPU
     print(f"Utilizando {num_processes} processos.")
     
-    with Pool(num_processes) as pool:
-        pool.map(processar_arquivo, files_to_process)
+    # ESCREVE EM OUTPUT FILES OS DADOS DIVIDIDOS POR MINUTO
+    # with Pool(num_processes) as pool:
+    #     pool.map(processar_arquivo_minuto, files_to_process_min)
 
     input_dir = Path("output_files/min")
     output_dir = Path("etl/min")
@@ -59,15 +66,15 @@ if __name__ == "__main__":
     log_dir = Path("log/min")
     log_data = {}
 
-    # Iterar sobre os arquivos .dat no diretório de entrada
+    # CRIAÇÃO DO ARQUIVO DE LOG
     for pasta in input_dir.glob("*"):
-
         if pasta.is_dir():
             station_name = pasta.name
             station_log_data = {}
             for arquivo in pasta.glob("*.dat"):
-                transformed_df, qt_repetidos, qt_faltantes, qt_amostras = etl_minute(arquivo)
-                station_log_data[arquivo.stem] = {"Quantidade de repetidos": qt_repetidos, "Quantidade de faltantes": qt_faltantes, "Quantidade de amostras": qt_amostras}
+                print("PROCESSANDO ARQUIVO: ", arquivo)
+                transformed_df, qt_repetidos, qt_faltantes, qt_amostras, contador_fisicamente_possivel = etl_minute(arquivo)
+                station_log_data[arquivo.stem] = {"Quantidade de repetidos": qt_repetidos, "Quantidade de faltantes": qt_faltantes, "Quantidade de amostras": qt_amostras, "Contador Fisicamente Possível": contador_fisicamente_possivel}
                 relative_path = arquivo.relative_to(input_dir)
                 output_path = output_dir / relative_path
                 output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -78,7 +85,7 @@ if __name__ == "__main__":
     log_file_path = log_dir / "summary_log.txt"
 
                 
-# Escrever as informações no arquivo de log geral
+    # ESCRITA DO ARQUIVO DE LOG
     with open(log_file_path, 'w') as f:
         for station, data in log_data.items():
             f.write(f"Estação: {station}\n")
@@ -87,4 +94,19 @@ if __name__ == "__main__":
                 f.write(f"    Quantidade de repetidos: {values['Quantidade de repetidos']}\n")
                 f.write(f"    Quantidade de faltantes: {values['Quantidade de faltantes']}\n")
                 f.write(f"    Quantidade de amostras: {values['Quantidade de amostras']}\n")
+                f.write(f"    Quantidade de amostras fisicamente possíveis: {values['Contador Fisicamente Possível']}\n")
             f.write("\n")
+
+
+
+    # MERGE DOS ARQUIVOS
+    input_dir = Path("etl/min")
+
+    for pasta in input_dir.glob("*"):
+        novo_arquivo = pasta.stem
+
+        final_dir = Path(f"gold/min/{novo_arquivo}")
+        final_file = final_dir / f"{novo_arquivo}.dat"
+
+        final_dir.mkdir(parents=True, exist_ok=True)
+        merge_dat_files(pasta, final_file)

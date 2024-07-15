@@ -3,3 +3,5 @@ raw/
 etl/
 log/
 output_files/
+gold/
+__pycache__/
