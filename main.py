@@ -94,7 +94,9 @@ if __name__ == "__main__":
                 f.write(f"    Quantidade de repetidos: {values['Quantidade de repetidos']}\n")
                 f.write(f"    Quantidade de faltantes: {values['Quantidade de faltantes']}\n")
                 f.write(f"    Quantidade de amostras: {values['Quantidade de amostras']}\n")
-                f.write(f"    Quantidade de amostras fisicamente possíveis: {values['Contador Fisicamente Possível']}\n")
+                f.write(f"    Quantidade de amostras fisicamente possíveis:\n")
+                for key, val in values['Contador Fisicamente Possível'].items():
+                    f.write(f"      {key}: {val['contador_fisicamente_possivel']}\n")
             f.write("\n")
 
 

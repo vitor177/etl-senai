@@ -32,7 +32,6 @@ def etl_minute(path):
     longitude_ref = -45
     isc = 1367
     
-    contador_fisicamente_possivel = 0
     colunas = df.columns
     ghi_avg_colunas = [coluna for coluna in colunas if 'GHI' in coluna and coluna.endswith('_Avg')]
     info_ghi = {col: {'contador_fisicamente_possivel': 0} for col in ghi_avg_colunas}
@@ -106,10 +105,5 @@ def etl_second(filename):
     merged_df = pd.merge(complete_df, df, on='TIMESTAMP', how='left')
     # %%
     
-    
-    
-
-
-
     return merged_df
     # %%
