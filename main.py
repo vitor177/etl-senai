@@ -10,6 +10,36 @@ from merge_dat_files import merge_dat_files
 def processar_arquivo_minuto(file_path):
     input_file = file_path.name
     print(f"Processando {input_file}")
+
+
+    # RNES03
+    if "PAU DOS FERROS" in str(input_file):
+        input_file = "PAU DOS FERROS - RNES03"
+    # RNES04
+    if "SANTA CRUZ" in str(input_file):
+        input_file = "SANTA CRUZ - RNES04"
+    # RNES02
+    if "JANDAIRA" in str(input_file):
+        input_file = "JANDAIRA - RNES02"
+    # RNES01
+    if "LAJES" in str(input_file):
+        input_file = "LAJES - RNES01"
+    # SPES01
+    if "PIRASSUNUNGA" in str(input_file):
+        input_file = "PIRASSUNUNGA - SPES01"
+    # PBES01
+    if "SOUSA" in str(input_file):
+        input_file = "SOUSA - PBES01"
+    # Falta Ilha Solteira
+    if "ILHA SOLTEIRA" in str(input_file):
+        input_file = "ILHA SOLTEIRA - SPES02"
+    if "NATAL" in str(input_file):
+        input_file = "NATAL-RES00"
+    if "NOVA CRUZ" in str(input_file):
+        input_file = "NOVA CRUZ - RNES05"
+    if "MOSSORO" in str(input_file):
+        input_file = "MOSSORÓ - RNES06"
+
     
     # Leitura do arquivo CSV e ajuste dos dados
     df_complete = pd.read_csv(file_path, delimiter=',', header=None, skiprows=4)
@@ -27,7 +57,10 @@ def processar_arquivo_minuto(file_path):
             timestamp = row[0]
             print(f"TimeStamp: {timestamp} Arquivo: {file_path.name}")
             data_formatada = pd.to_datetime(timestamp).date().strftime("%Y-%m-%d")
-            output_file = output_dir / f"{input_file}-min-{data_formatada}.dat"
+
+
+
+            output_file = output_dir / f"{input_file}_{data_formatada}.dat"
             
             # Conversão para string e escrita no arquivo
             row_str = ','.join(map(str, row))

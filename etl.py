@@ -26,9 +26,37 @@ def etl_minute(path):
     missing_timestamps = all_timestamps.difference(df['TIMESTAMP'])
     complete_df = pd.DataFrame(all_timestamps, columns=["TIMESTAMP"])
     merged_df = pd.merge(complete_df, df, on='TIMESTAMP', how='left')
-    
+
+
     latitude = -5.706841
     longitude = -36.232853
+
+    # RNES03
+    if "PAU DOS FERROS" in str(path):
+        latitude = -6.1440
+        longitude = -38.1904
+    # RNES04
+    if "SANTA CRUZ" in str(path):
+        latitude = -6.2287
+        longitude = -36.0276
+    # RNES02
+    if "JANDAIRA" in str(path):
+        latitude = -5.2962
+        longitude = -36.2728
+    # RNES01
+    if "LAJES" in str(path):
+        latitude = -5.7068
+        longitude = -36.2300
+    # SPES01
+    if "PIRASSUNUNGA" in str(path):
+        latitude = -21.9807
+        longitude = -47.4525
+    # PBES01
+    if "SOUSA" in str(path):
+        latitude = -6.8372
+        longitude = -38.2934
+    # Falta Ilha Solteira
+
     longitude_ref = -45
     isc = 1367
     
