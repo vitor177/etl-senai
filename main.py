@@ -44,7 +44,7 @@ def processar_arquivo_minuto(file_path):
 if __name__ == "__main__":
 
     # COPIA DOS ARQUIVOS PARA A PASTA RAW
-    copia() 
+    #copia() 
 
     min_directory = Path("./raw/min")
     files_to_process_min = list(min_directory.glob("*"))
@@ -56,7 +56,6 @@ if __name__ == "__main__":
     num_processes = cpu_count()  # Número de núcleos da CPU
     print(f"Utilizando {num_processes} processos.")
     
-    # ESCREVE EM OUTPUT FILES OS DADOS DIVIDIDOS POR MINUTO
     with Pool(num_processes) as pool:
         pool.map(processar_arquivo_minuto, files_to_process_min)
 
@@ -91,12 +90,30 @@ if __name__ == "__main__":
             f.write(f"Estação: {station}\n")
             for file_name, values in data.items():
                 f.write(f"  Arquivo: {file_name}\n")
+                f.write(f"    Quantidade de amostras: {values['Quantidade de amostras']}\n")
                 f.write(f"    Quantidade de repetidos: {values['Quantidade de repetidos']}\n")
                 f.write(f"    Quantidade de faltantes: {values['Quantidade de faltantes']}\n")
-                f.write(f"    Quantidade de amostras: {values['Quantidade de amostras']}\n")
                 f.write(f"    Quantidade de amostras fisicamente possíveis:\n")
                 for key, val in values['Contador Fisicamente Possível'].items():
                     f.write(f"      {key}: {val['contador_fisicamente_possivel']}\n")
+                    total = values['Quantidade de amostras']
+                    n = val['contador_fisicamente_possivel']
+                    anomalos = total - n
+                    #status = ""
+                    if anomalos/total < 0.01:
+                        status = "Consistente"
+                    elif anomalos/total >= 0.01 and anomalos/total <= 0.05:
+                        status = "Atenção"
+                    else:
+                        status = "Inconsistente"
+
+                    porcentagem = (anomalos/total)*100
+
+                    f.write(f"          Dados Anômalos: {porcentagem:,.2f}%\n")
+                    f.write(f"          Situação: {status}\n")
+
+
+
             f.write("\n")
 
 
