@@ -56,6 +56,9 @@ def etl_minute(path):
         latitude = -6.8372
         longitude = -38.2934
     # Falta Ilha Solteira
+    if "ILHA SOLTEIRA" in str(path):
+        latitude = -20.398788
+        longitude = -51.357205
 
     longitude_ref = -45
     isc = 1367

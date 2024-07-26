@@ -5,12 +5,17 @@ from multiprocessing import Pool, cpu_count
 from copy_files import copia
 from etl import etl_minute
 from merge_dat_files import merge_dat_files
+import os
+import shutil
 
 
 def processar_arquivo_minuto(file_path):
     input_file = file_path.name
     print(f"Processando {input_file}")
 
+
+
+    # INSERIR NO NOVO CODIGO
 
     # RNES03
     if "PAU DOS FERROS" in str(input_file):
@@ -39,6 +44,9 @@ def processar_arquivo_minuto(file_path):
         input_file = "NOVA CRUZ - RNES05"
     if "MOSSORO" in str(input_file):
         input_file = "MOSSORÓ - RNES06"
+
+
+
 
     
     # Leitura do arquivo CSV e ajuste dos dados
@@ -76,8 +84,19 @@ def processar_arquivo_minuto(file_path):
 
 if __name__ == "__main__":
 
+
+
+
+    # Lista de diretórios a serem excluídos
+    directories = ['raw', 'bronze', 'silver', 'gold', 'log']
+
+    for directory in directories:
+        if os.path.exists(directory):
+            shutil.rmtree(directory)
+            print(f"Diretório '{directory}' excluído.")
+
     # COPIA DOS ARQUIVOS PARA A PASTA RAW
-    #copia() 
+    copia() 
 
     min_directory = Path("./raw/min")
     files_to_process_min = list(min_directory.glob("*"))
