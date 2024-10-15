@@ -4,50 +4,116 @@ from pathlib import Path
 from multiprocessing import Pool, cpu_count
 from copy_files import copia
 from etl import etl_minute
-from merge_dat_files import merge_dat_files
-import os
 import shutil
+from merge_dat_files import merge_dat_files
+
+from datetime import datetime, timedelta, date
+
+# Verifica se o dia de hoje é segunda-feira
+if datetime.now().weekday() == 0:
+    uma_semana_atras = date.today() - timedelta(days=4)
+else:      
+    uma_semana_atras = date.today() - timedelta(days=10)
+
+
+def processar_arquivo_segundo(file_path):
+    original_name = file_path.name
+    input_file = file_path.name
+    print(f"Processando {input_file}")
+
+     # RNES03
+    if "PAU DOS FERROS" in str(input_file):
+        input_file = "RNES03"
+    # RNES04
+    if "SANTA CRUZ" in str(input_file):
+        input_file = "RNES04"
+    # RNES02
+    if "JANDAIRA" in str(input_file):
+        input_file = "RNES02"
+    # RNES01
+    if "LAJES" in str(input_file):
+        input_file = "RNES01"
+    # SPES01
+    if "PIRASSUNUNGA" in str(input_file):
+        input_file = "SPES01"
+    # PBES01
+    if "SOUSA" in str(input_file):
+        input_file = "PBES01"
+    # Falta Ilha Solteira
+    if "ILHA SOLTEIRA" in str(input_file):
+        input_file = "SPES02"
+    if "NATAL" in str(input_file):
+        input_file = "RES00"
+    if "NOVA CRUZ" in str(input_file):
+        input_file = "RNES05"
+    if "MOSSORO" in str(input_file):
+        input_file = "RNES06"
+    
+    # Leitura do arquivo CSV e ajuste dos dados
+    df_complete = pd.read_csv(file_path, delimiter=',', header=None, skiprows=4)
+    header_lines = [line.strip() for line in open(file_path, 'r').readlines()[:4]]
+    data_start_line = 4
+    
+    # Criação do diretório de saída
+    output_base_dir = Path("bronze/seg")
+    output_dir = output_base_dir / input_file
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Conversão dos dados e escrita nos arquivos de saída
+    for index, row in df_complete.iterrows():
+        #if index >= data_start_line:
+        timestamp = row[0]
+        data_timestamp = pd.to_datetime(timestamp).date()
+        if not pd.isna(data_timestamp):
+            if data_timestamp > uma_semana_atras and data_timestamp != datetime.now().date():
+                print(f"TimeStamp: {timestamp} Arquivo: {file_path.name}")
+                data_formatada = pd.to_datetime(timestamp).date().strftime("%Y-%m-%d")
+                output_file = output_dir / f"{input_file}_{data_formatada}.dat"
+
+                # Conversão para string e escrita no arquivo
+                row_str = ','.join(map(str, row))
+                
+                if os.path.exists(output_file):
+                    with open(output_file, 'a') as file:
+                        file.write(row_str + "\n")
+                else:
+                    with open(output_file, 'w') as file:
+                        for header_line in header_lines:
+                            file.write(header_line + "\n")
+                        file.write(row_str + "\n")
 
 
 def processar_arquivo_minuto(file_path):
     input_file = file_path.name
     print(f"Processando {input_file}")
 
-
-
-    # INSERIR NO NOVO CODIGO
-
-    # RNES03
+     # RNES03
     if "PAU DOS FERROS" in str(input_file):
-        input_file = "PAU DOS FERROS - RNES03"
+        input_file = "RNES03"
     # RNES04
     if "SANTA CRUZ" in str(input_file):
-        input_file = "SANTA CRUZ - RNES04"
+        input_file = "RNES04"
     # RNES02
     if "JANDAIRA" in str(input_file):
-        input_file = "JANDAIRA - RNES02"
+        input_file = "RNES02"
     # RNES01
     if "LAJES" in str(input_file):
-        input_file = "LAJES - RNES01"
+        input_file = "RNES01"
     # SPES01
     if "PIRASSUNUNGA" in str(input_file):
-        input_file = "PIRASSUNUNGA - SPES01"
+        input_file = "SPES01"
     # PBES01
     if "SOUSA" in str(input_file):
-        input_file = "SOUSA - PBES01"
+        input_file = "PBES01"
     # Falta Ilha Solteira
     if "ILHA SOLTEIRA" in str(input_file):
-        input_file = "ILHA SOLTEIRA - SPES02"
+        input_file = "SPES02"
     if "NATAL" in str(input_file):
-        input_file = "NATAL-RES00"
+        input_file = "RES00"
     if "NOVA CRUZ" in str(input_file):
-        input_file = "NOVA CRUZ - RNES05"
+        input_file = "RNES05"
     if "MOSSORO" in str(input_file):
-        input_file = "MOSSORÓ - RNES06"
-
-
-
-
+        input_file = "RNES06"
     
     # Leitura do arquivo CSV e ajuste dos dados
     df_complete = pd.read_csv(file_path, delimiter=',', header=None, skiprows=4)
@@ -59,41 +125,42 @@ def processar_arquivo_minuto(file_path):
     output_dir = output_base_dir / input_file
     output_dir.mkdir(parents=True, exist_ok=True)
     
+
+    
     # Conversão dos dados e escrita nos arquivos de saída
     for index, row in df_complete.iterrows():
         if index >= data_start_line:
             timestamp = row[0]
-            print(f"TimeStamp: {timestamp} Arquivo: {file_path.name}")
-            data_formatada = pd.to_datetime(timestamp).date().strftime("%Y-%m-%d")
 
+            data_timestamp = pd.to_datetime(timestamp).date()
 
-
-            output_file = output_dir / f"{input_file}_{data_formatada}.dat"
-            
-            # Conversão para string e escrita no arquivo
-            row_str = ','.join(map(str, row))
-            
-            if os.path.exists(output_file):
-                with open(output_file, 'a') as file:
-                    file.write(row_str + "\n")
-            else:
-                with open(output_file, 'w') as file:
-                    for header_line in header_lines:
-                        file.write(header_line + "\n")
-                    file.write(row_str + "\n")
+            if not pd.isna(data_timestamp):
+                if data_timestamp > uma_semana_atras and data_timestamp != datetime.now().date():
+                #if data_timestamp >= datetime.strptime('2024-07-31', '%Y-%m-%d').date() and data_timestamp <= datetime.strptime('2024-08-31', '%Y-%m-%d').date():
+                    print(f"TimeStamp: {timestamp} Arquivo: {file_path.name}")
+                    data_formatada = pd.to_datetime(timestamp).date().strftime("%Y-%m-%d")
+                    output_file = output_dir / f"{input_file}_{data_formatada}.dat"
+                    
+                    # Conversão para string e escrita no arquivo
+                    row_str = ','.join(map(str, row))
+                    
+                    if os.path.exists(output_file):
+                        with open(output_file, 'a') as file:
+                            file.write(row_str + "\n")
+                    else:
+                        with open(output_file, 'w') as file:
+                            for header_line in header_lines:
+                                file.write(header_line + "\n")
+                            file.write(row_str + "\n")
 
 if __name__ == "__main__":
 
-
-
-
-    # Lista de diretórios a serem excluídos
-    directories = ['raw', 'bronze', 'silver', 'gold', 'log']
+    # Exclusão das pastas ao executar o script
+    directories = ["raw", "bronze", "silver", "gold", "log"]
 
     for directory in directories:
         if os.path.exists(directory):
             shutil.rmtree(directory)
-            print(f"Diretório '{directory}' excluído.")
 
     # COPIA DOS ARQUIVOS PARA A PASTA RAW
     copia() 
@@ -110,6 +177,9 @@ if __name__ == "__main__":
     
     with Pool(num_processes) as pool:
         pool.map(processar_arquivo_minuto, files_to_process_min)
+
+    with Pool(num_processes) as pool:
+        pool.map(processar_arquivo_segundo, files_to_process_seg)
 
     input_dir = Path("bronze/min")
     output_dir = Path("silver/min")
@@ -129,6 +199,7 @@ if __name__ == "__main__":
                 relative_path = arquivo.relative_to(input_dir)
                 output_path = output_dir / relative_path
                 output_path.parent.mkdir(parents=True, exist_ok=True)
+                transformed_df = transformed_df.applymap(lambda x: 'NAN' if pd.isna(x) else x)
                 transformed_df.to_csv(output_path, index=False, sep=',')
             log_data[station_name] = station_log_data
 
@@ -141,8 +212,8 @@ if __name__ == "__main__":
         for station, data in log_data.items():
             f.write(f"Estação: {station}\n")
             for file_name, values in data.items():
-                f.write(f"  Arquivo: {file_name}\n")
                 f.write(f"    Quantidade de amostras: {values['Quantidade de amostras']}\n")
+                f.write(f"  Arquivo: {file_name}\n")
                 f.write(f"    Quantidade de repetidos: {values['Quantidade de repetidos']}\n")
                 f.write(f"    Quantidade de faltantes: {values['Quantidade de faltantes']}\n")
                 f.write(f"    Quantidade de amostras fisicamente possíveis:\n")
@@ -163,12 +234,7 @@ if __name__ == "__main__":
 
                     f.write(f"          Dados Anômalos: {porcentagem:,.2f}%\n")
                     f.write(f"          Situação: {status}\n")
-
-
-
             f.write("\n")
-
-
 
     # MERGE DOS ARQUIVOS
     input_dir = Path("silver/min")
