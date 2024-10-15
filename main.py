@@ -8,17 +8,37 @@ import shutil
 from merge_dat_files import merge_dat_files
 
 from datetime import datetime, timedelta, date
+import time
 
-# Verifica se o dia de hoje é segunda-feira
-if datetime.now().weekday() == 0:
-    uma_semana_atras = date.today() - timedelta(days=4)
-else:      
-    uma_semana_atras = date.today() - timedelta(days=10)
+
+
+search_data_start = "2024-10-04"#None# "yyyy-mm-dd" or None, example "2024-10-13"
+search_data_end = "2024-10-05"#None# "yyyy-mm-dd" or None, example "2024-10-13"
+
+
+initial_data= None
+final_data = None
+
+#Se as datas nao forem enseridas manualmente
+if search_data_start == None or search_data_end == None:
+
+    # Verifica se o dia de hoje é segunda-feira
+    if datetime.now().weekday() == 0:
+        initial_data = (pd.Timestamp('today') - pd.Timedelta(days=4)).replace(hour=23, minute=59, second=59)
+        final_data = (pd.Timestamp('today') - pd.Timedelta(days=1)).replace(hour=23, minute=59, second=59)
+    else:
+        initial_data = (pd.Timestamp('today') - pd.Timedelta(days=2)).replace(hour=23, minute=59, second=59)
+        final_data = (pd.Timestamp('today') - pd.Timedelta(days=1)).replace(hour=23, minute=59, second=59)
+else:
+    initial_data = (pd.to_datetime(search_data_start+' 23:59:59') - pd.Timedelta(days=1)).replace(hour=23, minute=59, second=59)
+    final_data = pd.to_datetime(search_data_end+' 23:59:59')
+
 
 
 def processar_arquivo_segundo(file_path):
     original_name = file_path.name
     input_file = file_path.name
+
     print(f"Processando {input_file}")
 
      # RNES03
@@ -51,6 +71,8 @@ def processar_arquivo_segundo(file_path):
     
     # Leitura do arquivo CSV e ajuste dos dados
     df_complete = pd.read_csv(file_path, delimiter=',', header=None, skiprows=4)
+    df_complete[0] = pd.to_datetime(df_complete[0], format='%Y-%m-%d %H:%M:%S')
+
     header_lines = [line.strip() for line in open(file_path, 'r').readlines()[:4]]
     data_start_line = 4
     
@@ -58,29 +80,34 @@ def processar_arquivo_segundo(file_path):
     output_base_dir = Path("bronze/seg")
     output_dir = output_base_dir / input_file
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
+    df_outdated_data = df_complete[(df_complete[0] > initial_data) & (df_complete[0] <= final_data)]
+
+
+
+
     # Conversão dos dados e escrita nos arquivos de saída
-    for index, row in df_complete.iterrows():
+    for index, row in df_outdated_data.iterrows():
         #if index >= data_start_line:
         timestamp = row[0]
         data_timestamp = pd.to_datetime(timestamp).date()
         if not pd.isna(data_timestamp):
-            if data_timestamp > uma_semana_atras and data_timestamp != datetime.now().date():
-                print(f"TimeStamp: {timestamp} Arquivo: {file_path.name}")
-                data_formatada = pd.to_datetime(timestamp).date().strftime("%Y-%m-%d")
-                output_file = output_dir / f"{input_file}_{data_formatada}.dat"
+            #if data_timestamp > uma_semana_atras and data_timestamp != datetime.now().date():
+            print(f"TimeStamp: {timestamp} Arquivo: {file_path.name}")
+            data_formatada = pd.to_datetime(timestamp).date().strftime("%Y-%m-%d")
+            output_file = output_dir / f"{input_file}_{data_formatada}.dat"
 
-                # Conversão para string e escrita no arquivo
-                row_str = ','.join(map(str, row))
-                
-                if os.path.exists(output_file):
-                    with open(output_file, 'a') as file:
-                        file.write(row_str + "\n")
-                else:
-                    with open(output_file, 'w') as file:
-                        for header_line in header_lines:
-                            file.write(header_line + "\n")
-                        file.write(row_str + "\n")
+            # Conversão para string e escrita no arquivo
+            row_str = ','.join(map(str, row))
+            
+            if os.path.exists(output_file):
+                with open(output_file, 'a') as file:
+                    file.write(row_str + "\n")
+            else:
+                with open(output_file, 'w') as file:
+                    for header_line in header_lines:
+                        file.write(header_line + "\n")
+                    file.write(row_str + "\n")
 
 
 def processar_arquivo_minuto(file_path):
@@ -117,6 +144,7 @@ def processar_arquivo_minuto(file_path):
     
     # Leitura do arquivo CSV e ajuste dos dados
     df_complete = pd.read_csv(file_path, delimiter=',', header=None, skiprows=4)
+    df_complete[0] = pd.to_datetime(df_complete[0], format='%Y-%m-%d %H:%M:%S')
     header_lines = [line.strip() for line in open(file_path, 'r').readlines()[:4]]
     data_start_line = 4
     
@@ -126,35 +154,38 @@ def processar_arquivo_minuto(file_path):
     output_dir.mkdir(parents=True, exist_ok=True)
     
 
+    df_outdated_data = df_complete[(df_complete[0] > initial_data) & (df_complete[0] <= final_data)]
+
     
     # Conversão dos dados e escrita nos arquivos de saída
-    for index, row in df_complete.iterrows():
-        if index >= data_start_line:
-            timestamp = row[0]
+    for index, row in df_outdated_data.iterrows():
+        # if index >= data_start_line:
+        timestamp = row[0]
 
-            data_timestamp = pd.to_datetime(timestamp).date()
+        data_timestamp = pd.to_datetime(timestamp).date()
 
-            if not pd.isna(data_timestamp):
-                if data_timestamp > uma_semana_atras and data_timestamp != datetime.now().date():
-                #if data_timestamp >= datetime.strptime('2024-07-31', '%Y-%m-%d').date() and data_timestamp <= datetime.strptime('2024-08-31', '%Y-%m-%d').date():
-                    print(f"TimeStamp: {timestamp} Arquivo: {file_path.name}")
-                    data_formatada = pd.to_datetime(timestamp).date().strftime("%Y-%m-%d")
-                    output_file = output_dir / f"{input_file}_{data_formatada}.dat"
-                    
-                    # Conversão para string e escrita no arquivo
-                    row_str = ','.join(map(str, row))
-                    
-                    if os.path.exists(output_file):
-                        with open(output_file, 'a') as file:
-                            file.write(row_str + "\n")
-                    else:
-                        with open(output_file, 'w') as file:
-                            for header_line in header_lines:
-                                file.write(header_line + "\n")
-                            file.write(row_str + "\n")
+        if not pd.isna(data_timestamp):
+            # if data_timestamp > uma_semana_atras and data_timestamp != datetime.now().date():
+            #if data_timestamp >= datetime.strptime('2024-07-31', '%Y-%m-%d').date() and data_timestamp <= datetime.strptime('2024-08-31', '%Y-%m-%d').date():
+            print(f"TimeStamp: {timestamp} Arquivo: {file_path.name}")
+            data_formatada = pd.to_datetime(timestamp).date().strftime("%Y-%m-%d")
+            output_file = output_dir / f"{input_file}_{data_formatada}.dat"
+            
+            # Conversão para string e escrita no arquivo
+            row_str = ','.join(map(str, row))
+            
+            if os.path.exists(output_file):
+                with open(output_file, 'a') as file:
+                    file.write(row_str + "\n")
+            else:
+                with open(output_file, 'w') as file:
+                    for header_line in header_lines:
+                        file.write(header_line + "\n")
+                    file.write(row_str + "\n")
 
 if __name__ == "__main__":
 
+    time_star = time.perf_counter_ns()
     # Exclusão das pastas ao executar o script
     directories = ["raw", "bronze", "silver", "gold", "log"]
 
@@ -175,12 +206,13 @@ if __name__ == "__main__":
     num_processes = cpu_count()  # Número de núcleos da CPU
     print(f"Utilizando {num_processes} processos.")
     
+    
     with Pool(num_processes) as pool:
         pool.map(processar_arquivo_minuto, files_to_process_min)
-
+    
     with Pool(num_processes) as pool:
         pool.map(processar_arquivo_segundo, files_to_process_seg)
-
+    
     input_dir = Path("bronze/min")
     output_dir = Path("silver/min")
 
@@ -247,3 +279,12 @@ if __name__ == "__main__":
 
         final_dir.mkdir(parents=True, exist_ok=True)
         merge_dat_files(pasta, final_file)
+
+
+    print("Buscas a partir de: ",initial_data )
+    print("Até: ", final_data)
+
+    time_end = time.perf_counter_ns()
+
+    print("Tempo total de execução: ")
+    print(((time_end - time_star)/1_000_000_000), " seconds")
