@@ -19,19 +19,21 @@ def etl_minute(path):
     df.drop_duplicates(inplace=True)
     df["TIMESTAMP"] = pd.to_datetime(df["TIMESTAMP"])
     
-    start_timestamp = df["TIMESTAMP"].min()
-    end_timestamp = df["TIMESTAMP"].max()
+    #start_timestamp = df["TIMESTAMP"].min()
+    start_timestamp = df["TIMESTAMP"].min().normalize()
+    #end_timestamp = df["TIMESTAMP"].max()
+    end_timestamp = (df["TIMESTAMP"].max().normalize() + pd.offsets.Day()) - pd.Timedelta(minutes=1)
+
     all_timestamps = pd.date_range(start=start_timestamp, end=end_timestamp, freq='min')
     
     missing_timestamps = all_timestamps.difference(df['TIMESTAMP'])
     complete_df = pd.DataFrame(all_timestamps, columns=["TIMESTAMP"])
     merged_df = pd.merge(complete_df, df, on='TIMESTAMP', how='left')
-
-
+    
     latitude = -5.706841
     longitude = -36.232853
 
-    # RNES03
+     # RNES03
     if "PAU DOS FERROS" in str(path):
         latitude = -6.1440
         longitude = -38.1904
@@ -55,10 +57,8 @@ def etl_minute(path):
     if "SOUSA" in str(path):
         latitude = -6.8372
         longitude = -38.2934
-    # Falta Ilha Solteira
     if "ILHA SOLTEIRA" in str(path):
-        latitude = -20.398788
-        longitude = -51.357205
+        pass
 
     longitude_ref = -45
     isc = 1367
@@ -115,17 +115,18 @@ def etl_second(filename):
     # %%
     # Identificando linhas duplicadas
     #duplicated_rows = df[df.duplicated()]
-
     # %%
     df.drop_duplicates(inplace=True)
-    df.isna().sum()
     # %%
     df["TIMESTAMP"] = pd.to_datetime(df["TIMESTAMP"])
-    df.head()
-    # %%
     # Gerar série temporária
-    start_timestamp = df["TIMESTAMP"].min()
-    end_timestamp = df["TIMESTAMP"].max()
+    
+    #start_timestamp = df["TIMESTAMP"].min()
+    start_timestamp = df["TIMESTAMP"].min().normalize()
+
+    #end_timestamp = df["TIMESTAMP"].max()
+    end_timestamp = (df["TIMESTAMP"].max().normalize() + pd.offsets.Day()) - pd.Timedelta(seconds=1)
+
     all_timestamps = pd.date_range(start=start_timestamp, end=end_timestamp, freq='S')
     # %%
     missing_timestamps = all_timestamps.difference(df['TIMESTAMP'])
