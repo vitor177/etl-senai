@@ -1,3 +1,4 @@
+import sys
 import os
 import pandas as pd
 from pathlib import Path
@@ -10,18 +11,8 @@ from merge_dat_files import merge_dat_files
 from datetime import datetime, timedelta, date
 import time
 
-
-
-search_data_start = "2024-10-04"#None# "yyyy-mm-dd" or None, example "2024-10-13"
-search_data_end = "2024-10-05"#None# "yyyy-mm-dd" or None, example "2024-10-13"
-
-
-initial_data= None
-final_data = None
-
 #Se as datas nao forem enseridas manualmente
-if search_data_start == None or search_data_end == None:
-
+if len(sys.argv) < 2:
     # Verifica se o dia de hoje é segunda-feira
     if datetime.now().weekday() == 0:
         initial_data = (pd.Timestamp('today') - pd.Timedelta(days=4)).replace(hour=23, minute=59, second=59)
@@ -30,6 +21,10 @@ if search_data_start == None or search_data_end == None:
         initial_data = (pd.Timestamp('today') - pd.Timedelta(days=2)).replace(hour=23, minute=59, second=59)
         final_data = (pd.Timestamp('today') - pd.Timedelta(days=1)).replace(hour=23, minute=59, second=59)
 else:
+    # search_data_start = "2024-10-04"#None# "yyyy-mm-dd" or None, example "2024-10-13"
+    # search_data_end = "2024-10-05"#None# "yyyy-mm-dd" or None, example "2024-10-13"
+    search_data_start = sys.argv[1]
+    search_data_end = sys.argv[2]
     initial_data = (pd.to_datetime(search_data_start+' 23:59:59') - pd.Timedelta(days=1)).replace(hour=23, minute=59, second=59)
     final_data = pd.to_datetime(search_data_end+' 23:59:59')
 
