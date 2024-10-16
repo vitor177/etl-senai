@@ -11,26 +11,33 @@ from datetime import datetime, timedelta, date
 import time
 
 
+#Busca Personalizada por datas
 
-search_data_start = "2024-10-04"#None# "yyyy-mm-dd" or None, example "2024-10-13"
-search_data_end = "2024-10-05"#None# "yyyy-mm-dd" or None, example "2024-10-13"
+#Data inicial de pesquisa ('yyyy-mm-dd') ou None
+#Data final de pesquisa ('yyyy-mm-dd') ou None
+search_data_start = None# "yyyy-mm-dd" or None, example "2024-10-13"
+search_data_end = None# "yyyy-mm-dd" or None, example "2024-10-13"
 
 
+
+
+
+#Não editar essas duas variaveis
 initial_data= None
 final_data = None
 
-#Se as datas nao forem enseridas manualmente
+#Se as datas não forem enseridas manualmente
 if search_data_start == None or search_data_end == None:
 
     # Verifica se o dia de hoje é segunda-feira
-    if datetime.now().weekday() == 0:
+    if datetime.now().weekday() == 0:#Dados de Sexta, Sabado e Domingo
         initial_data = (pd.Timestamp('today') - pd.Timedelta(days=4)).replace(hour=23, minute=59, second=59)
         final_data = (pd.Timestamp('today') - pd.Timedelta(days=1)).replace(hour=23, minute=59, second=59)
-    else:
-        initial_data = (pd.Timestamp('today') - pd.Timedelta(days=2)).replace(hour=23, minute=59, second=59)
+    else:#Dados do dia Anterior
+        initial_data = (pd.Timestamp('today') - pd.Timedelta(days=2)).replace(hour=23, minute=59, second=59)#
         final_data = (pd.Timestamp('today') - pd.Timedelta(days=1)).replace(hour=23, minute=59, second=59)
 else:
-    initial_data = (pd.to_datetime(search_data_start+' 23:59:59') - pd.Timedelta(days=1)).replace(hour=23, minute=59, second=59)
+    initial_data = (pd.to_datetime(search_data_start+' 23:59:59') - pd.Timedelta(days=1)).replace(hour=23, minute=59, second=59)#Conversão para as 23:59:59 do dia anterior
     final_data = pd.to_datetime(search_data_end+' 23:59:59')
 
 
@@ -109,7 +116,6 @@ def processar_arquivo_segundo(file_path):
                         file.write(header_line + "\n")
                     file.write(row_str + "\n")
 
-
 def processar_arquivo_minuto(file_path):
     input_file = file_path.name
     print(f"Processando {input_file}")
@@ -183,9 +189,11 @@ def processar_arquivo_minuto(file_path):
                         file.write(header_line + "\n")
                     file.write(row_str + "\n")
 
+
 if __name__ == "__main__":
 
-    time_star = time.perf_counter_ns()
+    # time_star = time.perf_counter_ns()
+
     # Exclusão das pastas ao executar o script
     directories = ["raw", "bronze", "silver", "gold", "log"]
 
@@ -284,7 +292,7 @@ if __name__ == "__main__":
     print("Buscas a partir de: ",initial_data )
     print("Até: ", final_data)
 
-    time_end = time.perf_counter_ns()
+    # time_end = time.perf_counter_ns()
 
-    print("Tempo total de execução: ")
-    print(((time_end - time_star)/1_000_000_000), " seconds")
+    # print("Tempo total de execução: ")
+    # print(((time_end - time_star)/1_000_000_000), " seconds")

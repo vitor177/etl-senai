@@ -3,8 +3,8 @@ import os
 
 
 def copia():
-    # network_drive = "D:/ESTAÇÕES ISI-ER/"
-    network_drive = "/home/cemig/Documentos/GitHub/dump_11.10.2024-13.02/DUMP-11.10.2024/"
+    network_drive = "D:/ESTAÇÕES ISI-ER/"
+    # network_drive = "/home/cemig/Documentos/GitHub/dump_11.10.2024-13.02/DUMP-11.10.2024/"
 
     network_path = "D:/joaovitor-ws/senai-extract"
 
