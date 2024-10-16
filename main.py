@@ -14,17 +14,18 @@ import time
 #Se as datas nao forem enseridas manualmente
 if len(sys.argv) < 2:
     # Verifica se o dia de hoje é segunda-feira
-    if datetime.now().weekday() == 0:
+    if datetime.now().weekday() == 0:#Dados de Sexta, Sabado e Domingo
         initial_data = (pd.Timestamp('today') - pd.Timedelta(days=4)).replace(hour=23, minute=59, second=59)
         final_data = (pd.Timestamp('today') - pd.Timedelta(days=1)).replace(hour=23, minute=59, second=59)
-    else:
-        initial_data = (pd.Timestamp('today') - pd.Timedelta(days=2)).replace(hour=23, minute=59, second=59)
+    else:#Dados do dia Anterior
+        initial_data = (pd.Timestamp('today') - pd.Timedelta(days=2)).replace(hour=23, minute=59, second=59)#
         final_data = (pd.Timestamp('today') - pd.Timedelta(days=1)).replace(hour=23, minute=59, second=59)
 else:
     # search_data_start = "2024-10-04"#None# "yyyy-mm-dd" or None, example "2024-10-13"
     # search_data_end = "2024-10-05"#None# "yyyy-mm-dd" or None, example "2024-10-13"
     search_data_start = sys.argv[1]
     search_data_end = sys.argv[2]
+    #Conversão para as 23:59:59 do dia anterior
     initial_data = (pd.to_datetime(search_data_start+' 23:59:59') - pd.Timedelta(days=1)).replace(hour=23, minute=59, second=59)
     final_data = pd.to_datetime(search_data_end+' 23:59:59')
 
@@ -180,7 +181,6 @@ def processar_arquivo_minuto(file_path):
 
 if __name__ == "__main__":
 
-    time_star = time.perf_counter_ns()
     # Exclusão das pastas ao executar o script
     directories = ["raw", "bronze", "silver", "gold", "log"]
 
@@ -280,6 +280,3 @@ if __name__ == "__main__":
     print("Até: ", final_data)
 
     time_end = time.perf_counter_ns()
-
-    print("Tempo total de execução: ")
-    print(((time_end - time_star)/1_000_000_000), " seconds")
