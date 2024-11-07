@@ -1,10 +1,10 @@
 import os
+from openpyxl import load_workbook
 
+import pandas as pd
 # Script solicitado para merge dos arquivos .dat
 
-
-
-def read_dat_file(filepath, offset=1):
+def read_dat_file(filepath, offset=4):
     """
     Lê um arquivo .dat e retorna o cabeçalho e os dados.
     
@@ -66,6 +66,41 @@ def merge_dat_files(directory, output_file):
         file.writelines(all_data)
 
     print(f"Arquivo '{output_file}' criado com sucesso.")
+
+    columns = all_data[:4]  # Divide a string para obter uma lista de colunas
+    data = [line.strip().split(",") for line in all_data[4:]]  # Divide cada linha dos dados
+
+
+    # # Crie o DataFrame
+    df = pd.DataFrame(data)
+
+    print("COLUMNS: ", df.head())
+
+
+    # # Salve em um arquivo Excel
+    estacao = str(output_file).split("/")[-2]
+    df.to_excel(f"consolidado_{estacao}.xlsx", index=False, header=False)
+
+    wb = load_workbook(f"consolidado_{estacao}.xlsx")
+    ws = wb.active
+
+    for i, linha in enumerate(columns, 1):
+        valores = linha.split(',')
+        ws.insert_rows(i)  # Insere uma nova linha no topo
+        for j, valor in enumerate(valores, 1):
+            valor = valor.replace('"', '')
+            ws.cell(row=i, column=j, value=valor)
+
+    # Salvar o arquivo com as novas linhas de cabeçalho
+
+    if not os.path.exists('consolidado'):
+        os.makedirs('consolidado')
+
+    wb.save(f"consolidado/consolidado_{estacao}.xlsx")
+
+
+    # print("HEADERRRR: ", header)
+
 
 if __name__ == "__main__":
     # Diretório contendo arquivos

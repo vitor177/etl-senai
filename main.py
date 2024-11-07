@@ -182,7 +182,7 @@ def processar_arquivo_minuto(file_path):
 if __name__ == "__main__":
 
     # Exclusão das pastas ao executar o script
-    directories = ["raw", "bronze", "silver", "gold", "log"]
+    directories = ["raw", "bronze", "silver", "gold", "log", "consolidado"]
 
     for directory in directories:
         if os.path.exists(directory):
@@ -221,13 +221,17 @@ if __name__ == "__main__":
             station_log_data = {}
             for arquivo in pasta.glob("*.dat"):
                 print("PROCESSANDO ARQUIVO: ", arquivo)
-                transformed_df, qt_repetidos, qt_faltantes, qt_amostras, contador_fisicamente_possivel = etl_minute(arquivo)
+                transformed_df, qt_repetidos, qt_faltantes, qt_amostras, contador_fisicamente_possivel, header_lines = etl_minute(arquivo)
                 station_log_data[arquivo.stem] = {"Quantidade de repetidos": qt_repetidos, "Quantidade de faltantes": qt_faltantes, "Quantidade de amostras": qt_amostras, "Contador Fisicamente Possível": contador_fisicamente_possivel}
                 relative_path = arquivo.relative_to(input_dir)
                 output_path = output_dir / relative_path
                 output_path.parent.mkdir(parents=True, exist_ok=True)
                 transformed_df = transformed_df.applymap(lambda x: 'NAN' if pd.isna(x) else x)
-                transformed_df.to_csv(output_path, index=False, sep=',')
+
+                with open(output_path, 'w') as f:
+                    for line in header_lines:
+                        f.write(line + '\n')
+                    transformed_df.to_csv(f, index=False, header=False,sep=',')
             log_data[station_name] = station_log_data
 
     log_dir.mkdir(parents=True, exist_ok=True)

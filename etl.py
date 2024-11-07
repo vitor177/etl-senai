@@ -12,6 +12,11 @@ def timestamp_para_horalocal(timestamp_str):
     return horalocal
 
 def etl_minute(path):
+
+    header_lines = [line.strip() for line in open(path, 'r').readlines()[:4]]
+
+    #print("HEADER LINES: ", header_lines)
+
     df_raw = pd.read_csv(path, delimiter=',', header=1)
     df = df_raw.iloc[2:].reset_index(drop=True)
     
@@ -28,6 +33,8 @@ def etl_minute(path):
     
     missing_timestamps = all_timestamps.difference(df['TIMESTAMP'])
     complete_df = pd.DataFrame(all_timestamps, columns=["TIMESTAMP"])
+
+
     merged_df = pd.merge(complete_df, df, on='TIMESTAMP', how='left')
     
     latitude = -5.706841
@@ -98,7 +105,7 @@ def etl_minute(path):
                 except ValueError:
                     continue
     
-    return merged_df, len(duplicated_rows), len(missing_timestamps), len(merged_df), info_ghi
+    return merged_df, len(duplicated_rows), len(missing_timestamps), len(merged_df), info_ghi, header_lines
 
 
 # %%
