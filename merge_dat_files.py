@@ -74,14 +74,14 @@ def merge_dat_files(directory, output_file):
     # # Crie o DataFrame
     df = pd.DataFrame(data)
 
-    print("COLUMNS: ", df.head())
-
+    if not os.path.exists('consolidado'):
+        os.makedirs('consolidado')
 
     # # Salve em um arquivo Excel
     estacao = str(output_file).split("/")[-2]
-    df.to_excel(f"consolidado_{estacao}.xlsx", index=False, header=False)
+    df.to_excel(f"consolidado/consolidado_{estacao}.xlsx", index=False, header=False)
 
-    wb = load_workbook(f"consolidado_{estacao}.xlsx")
+    wb = load_workbook(f"consolidado/consolidado_{estacao}.xlsx")
     ws = wb.active
 
     for i, linha in enumerate(columns, 1):
@@ -93,8 +93,7 @@ def merge_dat_files(directory, output_file):
 
     # Salvar o arquivo com as novas linhas de cabeçalho
 
-    if not os.path.exists('consolidado'):
-        os.makedirs('consolidado')
+
 
     wb.save(f"consolidado/consolidado_{estacao}.xlsx")
 
