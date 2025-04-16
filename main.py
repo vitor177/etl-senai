@@ -89,7 +89,7 @@ def processar_arquivo_segundo(file_path):
         data_timestamp = pd.to_datetime(timestamp).date()
         if not pd.isna(data_timestamp):
             #if data_timestamp > uma_semana_atras and data_timestamp != datetime.now().date():
-            print(f"TimeStamp: {timestamp} Arquivo: {file_path.name}")
+            #print(f"TimeStamp: {timestamp} Arquivo: {file_path.name}")
             data_formatada = pd.to_datetime(timestamp).date().strftime("%Y-%m-%d")
             output_file = output_dir / f"{input_file}_{data_formatada}.dat"
 
@@ -163,7 +163,7 @@ def processar_arquivo_minuto(file_path):
         if not pd.isna(data_timestamp):
             # if data_timestamp > uma_semana_atras and data_timestamp != datetime.now().date():
             #if data_timestamp >= datetime.strptime('2024-07-31', '%Y-%m-%d').date() and data_timestamp <= datetime.strptime('2024-08-31', '%Y-%m-%d').date():
-            print(f"TimeStamp: {timestamp} Arquivo: {file_path.name}")
+            #print(f"TimeStamp: {timestamp} Arquivo: {file_path.name}")
             data_formatada = pd.to_datetime(timestamp).date().strftime("%Y-%m-%d")
             output_file = output_dir / f"{input_file}_{data_formatada}.dat"
             
@@ -230,6 +230,7 @@ if __name__ == "__main__":
 
                 with open(output_path, 'w') as f:
                     for line in header_lines:
+                        print(line)
                         f.write(line + '\n')
                     transformed_df.to_csv(f, index=False, header=False,sep=',')
             log_data[station_name] = station_log_data
@@ -250,18 +251,19 @@ if __name__ == "__main__":
                 f.write(f"    Quantidade de amostras fisicamente possíveis:\n")
                 for key, val in values['Contador Fisicamente Possível'].items():
                     f.write(f"      {key}: {val['contador_fisicamente_possivel']}\n")
+                    faltantes = values['Quantidade de faltantes']
                     total = values['Quantidade de amostras']
                     n = val['contador_fisicamente_possivel']
-                    anomalos = total - n
+                    anomalos = total - faltantes - n
                     #status = ""
-                    if anomalos/total < 0.01:
+                    if anomalos/(total-faltantes) < 0.01:
                         status = "Consistente"
-                    elif anomalos/total >= 0.01 and anomalos/total <= 0.05:
+                    elif anomalos/(total-faltantes) >= 0.01 and anomalos/(total-faltantes) <= 0.05:
                         status = "Atenção"
                     else:
                         status = "Inconsistente"
 
-                    porcentagem = (anomalos/total)*100
+                    porcentagem = (anomalos/(total-faltantes))*100
 
                     f.write(f"          Dados Anômalos: {porcentagem:,.2f}%\n")
                     f.write(f"          Situação: {status}\n")
@@ -280,7 +282,7 @@ if __name__ == "__main__":
         merge_dat_files(pasta, final_file)
 
 
-    print("Buscas a partir de: ",initial_data )
-    print("Até: ", final_data)
+    # print("Buscas a partir de: ",initial_data )
+    # print("Até: ", final_data)
 
     time_end = time.perf_counter_ns()

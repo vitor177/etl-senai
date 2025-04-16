@@ -41,27 +41,28 @@ def etl_minute(path):
     longitude = -36.232853
 
      # RNES03
-    if "PAU DOS FERROS" in str(path):
+    if "RNES03" in str(path):
         latitude = -6.1440
         longitude = -38.1904
     # RNES04
-    if "SANTA CRUZ" in str(path):
+    if "RNES04" in str(path):
         latitude = -6.2287
         longitude = -36.0276
     # RNES02
-    if "JANDAIRA" in str(path):
+    if "RNES02" in str(path):
         latitude = -5.2962
         longitude = -36.2728
     # RNES01
-    if "LAJES" in str(path):
+    if "RNES01" in str(path):
         latitude = -5.7068
         longitude = -36.2300
     # SPES01
-    if "PIRASSUNUNGA" in str(path):
+    if "SPES01" in str(path):
+        print("COMEÇANDO ETL MINUTE EM : ", path)
         latitude = -21.9807
         longitude = -47.4525
     # PBES01
-    if "SOUSA" in str(path):
+    if "PBES01" in str(path):
         latitude = -6.8372
         longitude = -38.2934
     if "ILHA SOLTEIRA" in str(path):
@@ -88,7 +89,8 @@ def etl_minute(path):
         horasolar = (horalocal + ((4 * (longitude - longitude_ref)) + et)) / 60
         omega = (horasolar - 12) * 15
         declinacao = 23.45 * np.sin(((dia_juliano + 284) * (360 / 365)) * np.pi / 180)
-        cosAZS = (np.sin(latitude * np.pi / 180) * np.sin(declinacao * np.pi / 180)) + (np.cos(latitude * np.pi / 180) * np.cos(declinacao * np.pi / 180) * np.cos(omega * np.pi / 180))
+        cosAZS = (np.sin(latitude * np.pi / 180) * np.sin(declinacao * np.pi / 180)) + (np.cos(latitude * np.pi / 180) *
+                 np.cos(declinacao * np.pi / 180) * np.cos(omega * np.pi / 180))
         AZS = np.arccos(cosAZS) * 180 / np.pi
         
         cosAZS12 = cosAZS ** 1.2 if AZS <= 90 else 0

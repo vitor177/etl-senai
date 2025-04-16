@@ -4,7 +4,7 @@ import os
 
 def copia():
     # network_drive = "D:/ESTAÇÕES ISI-ER/"
-    network_drive = "/home/joaovitor/Documentos/files"
+    network_drive = "/home/joaovitor/Documentos/ESTAÇÕES ISI-ER"
 
     network_path = "D:/joaovitor-ws/senai-extract"
 
@@ -27,7 +27,8 @@ def copia():
             if file.endswith(".dat"):
                 print(f"Copiando o arquivo {file}")
                 full_path = os.path.join(network_drive, root, file)
-                if "NATAL" not in file: #and "LAJES" not in file:
+                #if "NATAL" not in file and "LAJES" not in file and "ILHA SOLTEIRA" not in file: #and "LAJES" not in file:
+                if "NATAL" not in file:
                     print(f"Copiando o arquivo: {file}")
                     if "seg" in file:
                         estacoes_segundo.append(full_path)
