@@ -52,6 +52,7 @@ def merge_dat_files(directory, output_file):
             common_header = header
             all_data.extend(header + data)
         else:
+            all_data.extend(data)
             # Para arquivos subsequentes, verificar se o cabeçalho é o mesmo
             if header != common_header:
                 print(f"Erro: Cabeçalho do arquivo {dat_file} é diferente do cabeçalho comum.")
@@ -59,7 +60,6 @@ def merge_dat_files(directory, output_file):
                 # print("HEADER: ", header)
                 # print("COMMOM HEADER: ", common_header)
                 continue
-            all_data.extend(data)
 
     # Escrever todos os dados no arquivo de saída
     with open(output_file, 'w', encoding='utf-8') as file:
@@ -73,27 +73,34 @@ def merge_dat_files(directory, output_file):
 
 
 
-    # # Crie o DataFrame
+    # Crie o DataFrame
     df = pd.DataFrame(data)
 
+    # Remove aspas duplas da primeira coluna (data)
+    df.iloc[:, 0] = df.iloc[:, 0].str.strip('"')
+
+    # Ordena o DataFrame pela primeira coluna (data)
     df.sort_values(by=df.columns[0], inplace=True)
 
-    df.iloc[:, 0] = pd.to_datetime(df.iloc[:, 0]).dt.strftime("%d/%m/%Y %H:%M:%S")
+    # Converte a primeira coluna para o formato de data e depois para o formato desejado
+    df.iloc[:, 0] = pd.to_datetime(df.iloc[:, 0], format="%Y-%m-%d %H:%M:%S").dt.strftime("%d/%m/%Y %H:%M:%S")
 
+    # Formata as colunas numéricas para duas casas decimais e substitui '.' por ','
     for col in df.columns[1:]:
         df[col] = df[col].apply(
             lambda x: f"{float(x):.2f}".replace('.', ',') if x.replace('.', '', 1).isdigit() else x
         )
 
+    # Cria o diretório 'consolidado' se ele não existir
     if not os.path.exists('consolidado'):
         os.makedirs('consolidado')
 
-    # # Salve em um arquivo Excel
-    estacao = str(output_file).split("/")[-2]
-
-    
+    # Salva o DataFrame em um arquivo Excel
+    #print(output_file)
+    estacao = str(output_file).split("-")[-2]
     df.to_excel(f"consolidado/consolidado_{estacao}.xlsx", index=False, header=False)
 
+    # Abre o arquivo Excel e insere o cabeçalho
     wb = load_workbook(f"consolidado/consolidado_{estacao}.xlsx")
     ws = wb.active
 
@@ -104,24 +111,15 @@ def merge_dat_files(directory, output_file):
             valor = valor.replace('"', '')
             ws.cell(row=i, column=j, value=valor)
 
-            
-
-    # Salvar o arquivo com as novas linhas de cabeçalho
-
-
-
+    # Salva o arquivo com as novas linhas de cabeçalho
     wb.save(f"consolidado/consolidado_{estacao}.xlsx")
-
-
-    # print("HEADERRRR: ", header)
-
 
 if __name__ == "__main__":
     # Diretório contendo arquivos
-    directory = 'juntar/RNES02-2025-01'
+    directory = 'juntar/RNES03-2024-12'
     
     # Arquivo de saída
-    output_file = 'RNES02-2025-01.dat'
+    output_file = 'RNES03-2024-12.dat'
 
     # Mesclar arquivos
     merge_dat_files(directory, output_file)
