@@ -28,7 +28,7 @@ def copia():
                 print(f"Copiando o arquivo {file}")
                 full_path = os.path.join(network_drive, root, file)
                 #if "NATAL" not in file and "LAJES" not in file and "ILHA SOLTEIRA" not in file: #and "LAJES" not in file:
-                if "NATAL" not in file:
+                if "RENECRODILO" not in file:
                     print(f"Copiando o arquivo: {file}")
                     if "seg" in file:
                         estacoes_segundo.append(full_path)
